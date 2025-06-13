@@ -1,5 +1,5 @@
 # Fentsu
-A small frontend framework based on jQuery, I made it to make my life easier on the frontend.
+A small frontend framework that uses jQuery, I made it to make my life easier on the frontend.
 
 It is still in a very early stage.
 
@@ -22,7 +22,7 @@ that name for parameters like this "function hello(arg)"
 When you add http parameters these can be accesed in the number of parameters + 1, meaning
 that if you have an url like /search/photos?q='landscapes' then arg is going to be [photos,'?q='landsapes']
 
-Another function that is important to mention is the request function and request_send,
+Another function that is important to mention is the request function and send_send,
 these are used for interacting with the API or backend that you are currently using, why two?
 because request_send is used whenever the user wants to send files to the backend, the normal request
 is for more light and simpler operations.
