@@ -29,3 +29,5 @@ is for more light and simpler operations.
 
 The authentication stuff is still very half-done and will be implemented later. 
 
+The few pages that are in there are just to check if it works, I'll add more appropiate demo pages later.
+
