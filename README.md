@@ -1,5 +1,5 @@
 # Fentsu
-A small frontend framework that uses jQuery, I made it to make my life easier on the frontend.
+A small frontend framework to quickly make SPAs that uses jQuery, I made it to make my life easier on the frontend.
 
 It is still in a very early stage.
 
