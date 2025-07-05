@@ -1,9 +1,14 @@
 import { backend_address } from "../base/settings.js";
-
+import { auth_enabled } from "../base/settings.js";
+import { debug } from "../base/settings.js";
+// Why there are two request functions? well because the send_request one if for sending files,
+// I could have put the same functionality on two functions but I kinda felt it was not worth increasing
+// the complexity and number of conditionals on the request function when sending files is the less used 
+// practice on a frontend.
 
 export function request(direction, request_method = 'POST', data = {}) {
-    let token = localStorage.getItem('accessToken');
-    console.log('token at request: '+token)
+    let token = auth_enabled ? localStorage.getItem('accessToken') : false;
+    if(debug){console.log('token at request: '+token)}
     return new Promise((resolve, reject) => {
         $.ajax({
             url: backend_address + direction,
@@ -29,9 +34,9 @@ export function request(direction, request_method = 'POST', data = {}) {
 }
 
 export function send_request(direction, request_method = 'POST', data = null) {
-    let token = localStorage.getItem('accessToken');
-    console.log('token at request:', token);
-    console.log('data sent:', data);
+    let token = auth_enabled ? localStorage.getItem('accessToken') : false;
+    if(debug){console.log('token at request: '+token)}
+    if(debug){console.log('data sent:', data)}
 
     return new Promise((resolve, reject) => {
         $.ajax({

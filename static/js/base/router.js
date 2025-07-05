@@ -17,7 +17,8 @@ import { home } from '../views/home.js';
 import { about } from '../views/about.js';
 import { one } from '../views/one.js';
 import { debug } from './settings.js';
-
+import { auth_enabled } from './settings.js';
+import { check_credentials } from '../api/auth.js';
 
 //yet to think
 const permissions = {
@@ -25,9 +26,25 @@ const permissions = {
     '/home': 'user'
 }
 
+async function check_route_auth(route){
+    if (auth_enabled && permissions[route] != 'guest'){
+        if(check_credentials(permissions[route])){
+            return true;
+        }else{
+            return false;
+        }
+    }else{
+        return true;
+    }
+}
 
 export async function router(route){
     let view = '';
+
+    if (!await check_route_auth(route)){
+        view = await not_found_404();
+        return view; 
+    }
 
     const static_router = {
         '/404': not_found_404,
