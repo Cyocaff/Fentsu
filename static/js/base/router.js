@@ -26,6 +26,33 @@ const permissions = {
     '/home': 'user'
 }
 
+function match_url(url, path) {
+    const paramRegex = {
+        '<int>': '(\\d+)',
+        '<str>': '([^/]+)'
+    };
+
+    const keys = [];
+    const regex_url = url.split('/').map(part => {
+        if (part in paramRegex) {
+            keys.push(part);
+            return paramRegex[part];
+        }
+        return part;
+    }).join('/');
+
+    const regex = new RegExp('^' + regex_url + '$');
+    const match = path.match(regex);
+
+    if (!match) return null;
+    const params = match.slice(1).map((val, i) => {
+        if (keys[i] === '<int>') return parseInt(val);
+        return val;
+    });
+
+    return params;
+}
+
 async function check_route_auth(route){
     if (auth_enabled && permissions[route] != 'guest'){
         if(check_credentials(permissions[route])){
@@ -38,54 +65,34 @@ async function check_route_auth(route){
     }
 }
 
-export async function router(route){
-    let view = '';
 
-    if (!await check_route_auth(route)){
-        view = await not_found_404();
-        return view; 
-    }
 
-    const static_router = {
-        '/404': not_found_404,
-        '/home': home,
-        '/about': about
-    }
-    const depth_one = {
-        '/one': one
-    }
-    const depth_two = {
-        '/one': one
-    }
+export async function router(route_raw){
+    const [route,http_parameters] = route_raw.split("?")
 
-    const router_level = [depth_one,depth_two]
-    // As you can see here, we search in an order thats is from less to more,
-    // you can change the order if you find it more convenient but I do not recommend it.
+  //  if (!await check_route_auth(route)){
+  //      view = await not_found_404();
+  //      return view; 
+  //  }
 
-    if (static_router[route]) {
-        view = await static_router[route]()
-        return view;
-    }else{
-        if(debug){console.log('現在の経路： '+ route)}
-        let dynamic_route_function;
-        for (let i=0;i<router_level.length;i++){
-            let x = i + 1;
-            if(debug){console.log('加工経路： '+route.split('/').slice(0, -x))}
-            if(debug){console.log('現在のインデクス: '+ i)}
-            if(dynamic_route_function = router_level[i] [(route.split('/').slice(0, -x).join('/'))]){
-                if(debug){console.log('見つけた！ 現在のインデクス： '+i)}
-                const dynamic_path = route.split('/').slice(-x)
-                if (dynamic_path[i].split("?").length > 1){
-                    const splited_parameters = dynamic_path[i].split("?");
-                    dynamic_path[i] = splited_parameters[0];
-                    dynamic_path[i+1] = splited_parameters[1];
-                }
-                view = await dynamic_route_function(dynamic_path)
-                return view;
-            }
+    const dynamic_router = [
+        {url:'/home' ,view: home },
+        {url:'/one/<int>' ,view:one},
+        {url:'/one/<str>/<int>' ,view:one},
+        {url:'/about',view:about },
+    ]
+
+
+    let view =''
+    for (let route_obj of dynamic_router){
+        const params = match_url(route_obj.url, route);
+        if (params) {
+            view = await route_obj.view(params,http_parameters);
+            return view;
         }
-        console.error('４０４：経路「', route,'」が見つかれませんでした。');
-        view= await not_found_404();
-        return view;
     }
+    console.error('４０４：経路「', route,'」が見つかれませんでした。');
+    view= await not_found_404();
+    return view;
 }
+
