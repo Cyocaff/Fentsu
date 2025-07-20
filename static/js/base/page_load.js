@@ -1,4 +1,4 @@
-import { router } from './router.js';
+import { router, compile_routes } from './router.js';
 import { manage_event_listeners } from './resources_management.js';
 import { frontend_address } from './settings.js';
 
@@ -10,6 +10,9 @@ export async function loadPage(current_path_name, goback) {
         }
         return $('#page_content_body').html(await router(current_path_name));
 }
+
+// below here go init functions
+
 function init_base_listeners(){
     window.addEventListener('popstate', function(event) {
         loadPage(String(window.location).replace(frontend_address,''),true);
@@ -22,5 +25,6 @@ function init_base_listeners(){
         manage_event_listeners([navigation_forward_listener], 'on', true);
 }
 
+compile_routes();
 loadPage(String(window.location).replace(frontend_address,''),true);   
 init_base_listeners();
