@@ -52,7 +52,7 @@ export function compile_routes(){
     for (let i=0;i<dynamic_router.length;i++){
         const keys = [];
         const pattern = dynamic_router[i][0]
-        const regexStr = pattern.split('/').map(part => {
+        const regex_str = pattern.split('/').map(part => {
             if (part in paramRegex) {
                 keys.push(part);
                 return paramRegex[part];
@@ -60,7 +60,7 @@ export function compile_routes(){
             return part;
         }).join('/');
         dynamic_router[i][2] = keys;
-        dynamic_router[i][0] = new RegExp('^' + regexStr + '$');
+        dynamic_router[i][0] = new RegExp('^' + regex_str + '$');
     }
 }
 
@@ -74,7 +74,7 @@ export async function router(route_raw){
     let view =''
 
     for (let i = 0; i < dynamic_router.length;i++){
-        const params = match_url(dynamic_router[i][0], route,dynamic_router[i][2]);
+        const params = match_url(dynamic_router[i][0], route.replace(/#(\d+)?$/,''),dynamic_router[i][2]);
         if (params) {
             const handler = dynamic_router[i][1];
             const view_handler = (await handler()).default;

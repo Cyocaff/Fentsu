@@ -1,17 +1,19 @@
 import { router, compile_routes } from './router.js';
-import { manage_event_listeners } from './resources_management.js';
+import { manage_event_listeners, manage_callbacks } from './resources_management.js';
 import { frontend_address } from './settings.js';
 
+const page_body = document.getElementById('page_content_body');
+
 export async function loadPage(current_path_name, goback) {
-    manage_event_listeners([],'off')
+    manage_event_listeners([],'off');
     current_path_name = current_path_name.replace(frontend_address,'')
         if (!goback){
             window.history.pushState(null, null, current_path_name);
         }
-        return $('#page_content_body').html(await router(current_path_name));
+        page_body.innerHTML = await router(current_path_name);
+        manage_callbacks([],'execute');
 }
 
-// below here go init functions
 
 function init_base_listeners(){
     window.addEventListener('popstate', function(event) {

@@ -14,7 +14,18 @@ export function manage_event_listeners(events = [], action = 'on', is_permanent 
     }
 }
 
+let current_callbacks = [];
 
+export function manage_callbacks(callbacks=[], action = 'execute'){
 
-
+    if (action == 'execute' && !current_callbacks.join() == [].join()){
+        for(let i = 0; i < current_callbacks.length; i++){
+            current_callbacks[i]();
+        }
+        current_callbacks = [];
+    }
+    if (action == 'set'){
+        current_callbacks = current_callbacks.concat(callbacks);
+    }
+}
 
