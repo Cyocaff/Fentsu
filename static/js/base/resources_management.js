@@ -1,6 +1,7 @@
 let current_view_event_listeners = [];
 
 export function manage_event_listeners(events = [], action = 'on', is_permanent = false) {
+    console.log(current_view_event_listeners)
     const list = action === 'off' ? current_view_event_listeners : events;
     for (const [type, selector, handler] of list) {
         if (action === 'off') {
@@ -8,9 +9,12 @@ export function manage_event_listeners(events = [], action = 'on', is_permanent 
         } else {
             $(document).on(type, selector, handler);
             if(!is_permanent){
-                current_view_event_listeners = events
+                current_view_event_listeners.push([type, selector, handler]);
             }
         }
+    }
+    if (action === 'off'){
+        current_view_event_listeners = [];
     }
 }
 
