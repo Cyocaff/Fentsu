@@ -45,7 +45,7 @@ function match_url(pattern, path, keys) {
 
 export function compile_routes(){
 
-    const paramRegex = {
+    const param_regex = {
         '<int>': '(\\d+)',
         '<str>': '([^/]+)'
     };
@@ -53,9 +53,9 @@ export function compile_routes(){
         const keys = [];
         const pattern = dynamic_router[i][0]
         const regex_str = pattern.split('/').map(part => {
-            if (part in paramRegex) {
+            if (part in param_regex) {
                 keys.push(part);
-                return paramRegex[part];
+                return param_regex[part];
             }
             return part;
         }).join('/');

@@ -1,64 +1,57 @@
 import { backend_address } from "../base/settings.js";
-import { auth_enabled } from "../base/settings.js";
-import { debug } from "../base/settings.js";
-// Why there are two request functions? well because the send_request one if for sending files,
-// I could have put the same functionality on two functions but I kinda felt it was not worth increasing
-// the complexity and number of conditionals on the request function when sending files is the less used 
-// practice on a frontend.
 
-export function request(direction, request_method = 'POST', data = {}) {
-    let token = auth_enabled ? localStorage.getItem('accessToken') : false;
-    if(debug){console.log('token at request: '+token)}
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: backend_address + direction,
+export async function request(direction, request_method = 'POST', data = {}){
+
+    const token = localStorage.getItem('accessToken');
+    const response = await fetch(
+        backend_address + direction, {
             method: request_method,
-            crossDomain: true,
-            credentials: token? 'include':'omit',
+            credentials: token? 'include' : 'omit',
+            mode : 'cors',
+            body: request_method !== 'GET' ? JSON.stringify(data) : undefined,
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Token ${token}` }),
-            },
-            data: request_method !== 'GET' ? JSON.stringify(data) : undefined,
-            success: function (response) {
-                resolve(response);
-            },
-            error: function (xhr, status, error) {
-                console.log('Authentication failed:', error);
-                console.log(xhr.responseText);
-                reject(xhr.responseText);
-            },
-        });
-    });
+                'Content-Type': 'application/json' ,
+                ...(token && { 'Authorization': `Token ${token}` })
+            }
+        }
+    )
+    if (!response.ok){
+        throw await response.text()
+    }
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+    } else {
+        return await response.text();
+    }
 }
 
-export function send_request(direction, request_method = 'POST', data = null) {
-    let token = auth_enabled ? localStorage.getItem('accessToken') : false;
-    if(debug){console.log('token at request: '+token)}
-    if(debug){console.log('data sent:', data)}
+export async function send_request(direction, request_method = 'POST', data){
+    const token = localStorage.getItem('accessToken');
 
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: backend_address + direction,
+    const response = await fetch(
+        backend_address + direction, {
             method: request_method,
-            crossDomain: true,
-            credentials: token ? 'include' : 'omit',
+            credentials: token? 'include' : 'omit',
+            mode : 'cors',
+            body: request_method !== 'GET'
+            ? data instanceof FormData ? data : JSON.stringify(data)
+            : undefined,
             headers: {
                 'Accept': 'application/json',
                 ...(token && { 'Authorization': `Token ${token}` }),
-            },
-            processData: false,
-            contentType: false,
-            data: request_method !== 'GET' ? data : undefined,
-            success: function (response) {
-                resolve(response);
-            },
-            error: function (xhr, status, error) {
-                console.log('Authentication failed:', error);
-                console.log(xhr.responseText);
-                reject(xhr.responseText);
-            },
-        });
-    });
+                ...(data && !(data instanceof FormData) && { 'Content-Type': 'application/json' })
+            }
+        }
+    )
+    if (!response.ok){
+        throw await response.text()
+    }
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+    } else {
+        return await response.text();
+    }
 }

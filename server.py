@@ -1,7 +1,7 @@
 # Fentsu framework temporal server process.
 import http.server
 import socketserver
-PORT = 8005
+PORT = 8002
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         print(self.path)
